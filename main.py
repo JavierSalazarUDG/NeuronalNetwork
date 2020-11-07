@@ -7,6 +7,7 @@ matplotlib.use('TkAgg')
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
 from matplotlib.backend_bases import key_press_handler
 from matplotlib.figure import Figure
+import matplotlib.pyplot as plt
 
 import csv
 import sys
@@ -46,6 +47,8 @@ def readFile(name):
 X = np.array(readFile('inputs.csv'), dtype=float)
 y = np.array(readFile('outputs.csv'), dtype=float)
 
+
+
 epochs = 10000
 epoch = 0
 presition = 0.01
@@ -53,9 +56,9 @@ E = 1.0
 lr = 0.3
 
 for i in range(len(y)):
-    c = 'slateblue'
+    c = 'green'
     if(y[i][0] > 0):
-        c = 'slategray'
+        c = 'black'
     a.scatter(X[i][0],X[i][1], c = c, s = 75)
 
 def learningRate(event):
@@ -95,12 +98,40 @@ def train():
 
         E = np.mean(np.square(y - NN.feedForward(X)))
         NN.train(X, y)
+        if epoch %100 ==0:
+            print(epoch)
+            printGrid(NN,X)
         epoch = epoch +1
 
     print("Epoca: " + str(epoch))
-
+   
     print("Predicted Output: " + str(NN.feedForward(X)))
- 
+
+
+def printGrid(neuron,X):
+    print()
+    xaxis =np.arange(-2.1,2.1,0.1).tolist(); 
+    yaxis = np.arange(-2.1,2.1,0.1).tolist(); 
+    X1,X2 = np.meshgrid(xaxis,yaxis)
+    vals = []
+  
+    # print(vals)
+    # x_1 = np.linspace(np.min(X[:, 0]), np.max(X[:, 0]), 100)
+    # x_2 =np.linspace(np.min(X[:, 1]), np.max(X[:, 1]), 100)
+    # X1, X2 = np.meshgrid(x_1, x_2)
+    vals = np.zeros(X1.shape)
+    for i,aa in enumerate(xaxis):
+        for j,ya in enumerate(yaxis):
+            vals[i,j] = 0 if neuron.feedForward(np.array([aa,ya]))[0] < 0.2 else 1
+            # a.scatter(aa,ya,c='r')
+            # canvas.draw()
+    a.contourf(X1,X2,vals)
+    for i in range(len(y)):
+        c = 'green'
+        if(y[i][0] > 0):
+            c = 'black'
+        a.scatter(X[i][0],X[i][1], c = c, s = 75)
+    canvas.draw()
 trainButton = Tk.Button(root, text="Entrenar", command=train)
 trainButton.pack(side='left')
 
